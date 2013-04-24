@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+    <title>Single page template</title>
+    <link rel="stylesheet" href="css\my-custom-theme.css" />
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.css" />
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.js"></script>
+
+    <style>
+        @media all {
+            .my-breakpoint.ui-grid-c .ui-block-a {
+                width: 49.95%;
+            }
+
+            .my-breakpoint.ui-grid-c .ui-block-b,
+            .my-breakpoint.ui-grid-c .ui-block-c,
+            .my-breakpoint.ui-grid-c .ui-block-d {
+                width: 15%;
+            }
+        }
+
+
+
+        #numericInput {
+            position: relative;
+        }
+
+        #numBox {
+            margin: 10px;
+            width: 150px;
+            height: 40px;
+            text-align: center;
+            border: solid 1px black;
+            cursor: text;
+            overflow: hidden;
+            padding-top: 20px;
+            font-weight: bold;
+            font-size: larger;
+            border-radius: 20px;
+        }
+
+        #keypad {
+            width: 300px;
+            height: 180px;
+            border: solid 1px black;
+            /*display:none;*/
+            /*position:absolute;
+        top:22px;
+        left:1px;*/
+        }
+
+        .key {
+            border: solid 1px black;
+            background-color: #497bae;
+            text-align: center;
+            /*font-weight:bold;*/
+            color: white;
+            cursor: pointer;
+        }
+
+            .key:hover {
+                background-color: LightBlue;
+            }
+
+            .key:active {
+                background-color: white;
+            }
+
+        .btn {
+            border: solid 1px black;
+            text-align: center;
+            font-weight: bold;
+            color: black;
+            cursor: pointer;
+            background-color: DimGray;
+            width: 33.3%;
+        }
+
+            .btn:hover {
+                background-color: DarkGray;
+            }
+
+            .btn:active {
+                background-color: LightGray;
+            }
+    </style>
+
+    <script type="text/javascript">
+        ///////////////////////////////
+        //Hook up events
+        ///////////////////////////////
+        $(document).ready(function () {
+            $('#btn_next').click(function () {
+                currentLine = parseInt(currentLine, 10) + 1;
+                //console.log(currentLine);
+                PresentData();
+            });
+
+            $('#btn_prev').click(function () {
+                currentLine = parseInt(currentLine, 10) - 1;
+                //console.log(currentLine);
+                PresentData();
+            });
+
+            $('#btn_confirm').click(function () {
+                confirmedLines[currentLine] = 1;
+                //console.log(confirmedLines[currentLine].toString());
+                //console.log($('#headr').attr('data-theme'));
+                PresentData();
+            });
+
+            $('#btn_dialog_back').click(function () {
+                //$('#qty_change').html($('#qty_changed_val').val());
+                //changedLines[currentLine] = $('#qty_changed_val').val();
+                changedLines[currentLine] = $('#numBox').text();
+                $('#numBox').html('');
+                //console.log($('#numBox').text());
+                //console.log(document.getElementById('numBox').innerHTML);
+                PresentData();
+            });
+
+
+
+            ///////////////////////////////
+            //Hook up keypad events
+            ///////////////////////////////
+            //$('#numBox').click(function () {
+            //    $('#keypad').fadeToggle('fast');
+            //    event.stopPropagation();
+            //});
+
+
+            // Function commented out
+            // due to Chrome apparently being the
+            // only browser smart enough to work
+            // right >.<
+
+            //$('body').click(function(){
+            //    $('#keypad').fadeOut('fast');
+            //    event.stopPropagation();
+            //});
+
+            $('.key').click(function () {
+                var numBox = document.getElementById('numBox');
+                if (this.innerHTML == '0') {
+                    if (numBox.innerHTML.length > 0)
+                        numBox.innerHTML = numBox.innerHTML + this.innerHTML;
+                }
+                else
+                    numBox.innerHTML = numBox.innerHTML + this.innerHTML;
+
+                event.stopPropagation();
+            });
+
+            $('.btn').click(function () {
+                if (this.innerHTML == 'DEL') {
+                    var numBox = document.getElementById('numBox');
+                    if (numBox.innerHTML.length > 0) {
+                        numBox.innerHTML = numBox.innerHTML.substring(0, numBox.innerHTML.length - 1);
+                    }
+                }
+                else {
+                    document.getElementById('numBox').innerHTML = '';
+                }
+
+                event.stopPropagation();
+            });
+
+
+            ///////////////////////////////
+            //Initialize vars and load data
+            ///////////////////////////////
+            var currentLine = 1;
+            var pickListJsonData = '';
+            var shipmentAPI = "shop.kraemer.no/POC/GetSampleData.aspx";
+            var confirmedLines = new Object();
+            var changedLines = new Object();
+            console.log('About to call LoadDataAndPresentFirst');
+            LoadDataAndPresentFirst();
+            //PresentData();
+
+            ///////////////////////////////
+            //Functions to be used
+            ///////////////////////////////
+            function PresentData() {
+                var found = false;
+                $.each(pickListJsonData, function (i, pickline) {
+                    if (!found && (currentLine == parseInt(pickline.LineNo, 10))) {
+                        found = true;
+                        //console.log(JSON.stringify(pickline));
+                        $('#bin').html(pickline.BinNo);
+                        $('#t').html(pickline.T);
+                        $('#qty').html(pickline.Qty);
+                        $('#qty_current').html(pickline.Qty);
+                        $('#unit').html(pickline.Unit);
+                        $('#desc').html(pickline.Desc);
+                        $('#desc2').html(pickline.Desc2);
+                        if (confirmedLines[currentLine] != undefined) {
+                            //console.log('confirmed: ' + confirmedLines[currentLine].toString());
+                            if (confirmedLines[currentLine] = currentLine) {
+                                $('#confirm_message').removeClass('ui-bar ui-bar-a').addClass('ui-bar ui-bar-f');
+                                $('#confirm_message').html('Bekreftet');
+                            }
+                        }
+                        else {
+                            $('#confirm_message').removeClass('ui-bar ui-bar-a ui-bar-b ui-bar-c ui-bar-d ui-bar-e ui-bar-f');
+                            $('#confirm_message').html('');
+                        }
+                        if (changedLines[currentLine] != undefined) {
+                            $('#qty_change').html(changedLines[currentLine]);
+                            $('#unit_change').html(pickline.Unit);
+                            $('#qty').css('text-decoration', 'line-through');
+                        }
+                        else {
+                            $('#qty_change').html('');
+                            $('#unit_change').html('');
+                            $('#qty').css('text-decoration', 'none');
+                        }
+                    }
+                });
+            }
+
+            function LoadDataAndPresentFirst() {
+                console.log('Gunnar was here');
+                $.getJSON(shipmentAPI, function (result) {
+                	console.log('Gunnar called getJSON');
+                    console.log(JSON.stringify(result));
+                    pickListJsonData = result;
+                    PresentData();
+                });
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <div data-role="page">
+
+        <div id="headr" data-theme="a" data-role="header">
+            <h1>Plukkliste for ordre 23123</h1>
+        </div>
+        <!-- /header 
+            
+            <a id="btn_home" href="index.html" data-icon="home">Hjem</a>
+            -->
+
+        <div data-role="content">
+            <div class="ui-grid-c my-breakpoint">
+                <div class="ui-block-a">
+                    <div id="bin" style="padding-top: 0.4em; padding-bottom: 0.4em; padding-right: 15px; padding-left: 15px; height: 60px; font-size: 36px; font-weight: bold">Laster...</div>
+                </div>
+                <div class="ui-block-b">
+                    <div id="t" style="padding-top: 0.4em; padding-bottom: 0.4em; padding-right: 15px; padding-left: 15px; height: 60px; font-size: 26px; font-weight: bold"></div>
+                </div>
+                <div class="ui-block-c">
+                    <div id="qty" style="padding-top: 0.4em; padding-right: 15px; padding-left: 15px; height: 30px; font-size: 26px; font-weight: bold; text-align: right"></div>
+                    <div id="qty_change" style="padding-right: 15px; padding-left: 15px; font-size: 26px; font-weight: bold; text-align: right">
+                    </div>
+                </div>
+                <div class="ui-block-d">
+                    <div id="unit" style="padding-top: 0.4em; padding-right: 15px; padding-left: 15px; height: 30px; font-size: 26px; font-weight: bold"></div>
+                    <div id="unit_change" style="padding-right: 15px; padding-left: 15px; font-size: 26px; font-weight: bold"></div>
+                </div>
+            </div>
+            <!-- /grid-c -->
+            <div id="desc" style="padding-top: 0.4em; padding-bottom: 0.4em; padding-right: 15px; padding-left: 15px; height: 60px; font-size: 26px; font-weight: bold"></div>
+            <div id="desc2" style="padding-top: 0.4em; padding-bottom: 0.4em; padding-right: 15px; padding-left: 15px; height: 60px; font-size: 26px; font-weight: bold"></div>
+
+
+        </div>
+        <!-- /content -->
+
+        <div data-role="footer" data-id="foo1" data-position="fixed">
+            <div data-role="navbar">
+                <div id="confirm_message"></div>
+            </div>
+            <!-- /navbar -->
+            <div data-role="navbar">
+                <ul>
+                    <li><a id="btn_prev" href="index.html" data-role="button" data-icon="arrow-l" data-iconpos="notext">Forrige</a></li>
+                    <li><a id="btn_change" href="#theDialog" data-rel="dialog" data-transition="slidedown" data-role="button" data-icon="edit" data-iconpos="notext">Endre</a></li>
+                    <li><a id="btn_confirm" href="index.html" data-role="button" data-icon="check" data-iconpos="notext">Bekrefte</a></li>
+                    <li><a id="btn_next" href="index.html" data-role="button" data-icon="arrow-r" data-iconpos="notext">Neste</a></li>
+                </ul>
+            </div>
+            <!-- /navbar -->
+        </div>
+        <!-- /footer -->
+
+    </div>
+    <!-- /page -->
+
+
+    <div data-role="dialog" id="theDialog">
+        <style>
+            .ui-dialog-contain {
+                margin-top: 5%;
+            }
+        </style>
+
+        <div id="Div1" data-theme="a" data-role="header">
+            <h1>Endre antall fra <span id="qty_current"></span></h1>
+        </div>
+        <!-- /header -->
+
+        <div data-role="content">
+            <div id="numericInput">
+                <div id="numBox"></div>
+                <table id="keypad">
+                    <tr>
+                        <td class="key">1</td>
+                        <td class="key">2</td>
+                        <td class="key">3</td>
+                        <td class="btn">DEL</td>
+                    </tr>
+                    <tr>
+                        <td class="key">4</td>
+                        <td class="key">5</td>
+                        <td class="key">6</td>
+                        <td class="key">,</td>
+                    </tr>
+                    <tr>
+                        <td class="key">7</td>
+                        <td class="key">8</td>
+                        <td class="key">9</td>
+                        <td class="key">0</td>
+                    </tr>
+                </table>
+            </div>
+            <!--numericInput-->
+            <a id="btn_dialog_back" href="index.html" data-role="button" data-rel="back" data-theme="b">Ok</a>
+        </div>
+
+
+    </div>
+    
+    <script type="text/javascript" src="cordova-2.5.0.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
+    <script type="text/javascript">
+        app.initialize();
+    </script>
+
+</body>
+</html>
