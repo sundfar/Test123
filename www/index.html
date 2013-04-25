@@ -7,88 +7,10 @@
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
     <title>Single page template</title>
     <link rel="stylesheet" href="css\my-custom-theme.css" />
-    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.css" />
-    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-    <script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.js"></script>
-
-    <style>
-        @media all {
-            .my-breakpoint.ui-grid-c .ui-block-a {
-                width: 49.95%;
-            }
-
-            .my-breakpoint.ui-grid-c .ui-block-b,
-            .my-breakpoint.ui-grid-c .ui-block-c,
-            .my-breakpoint.ui-grid-c .ui-block-d {
-                width: 15%;
-            }
-        }
+    <script src="js\jquery-1.9.1.min.js"></script>
 
 
-
-        #numericInput {
-            position: relative;
-        }
-
-        #numBox {
-            margin: 10px;
-            width: 150px;
-            height: 40px;
-            text-align: center;
-            border: solid 1px black;
-            cursor: text;
-            overflow: hidden;
-            padding-top: 20px;
-            font-weight: bold;
-            font-size: larger;
-            border-radius: 20px;
-        }
-
-        #keypad {
-            width: 300px;
-            height: 180px;
-            border: solid 1px black;
-            /*display:none;*/
-            /*position:absolute;
-        top:22px;
-        left:1px;*/
-        }
-
-        .key {
-            border: solid 1px black;
-            background-color: #497bae;
-            text-align: center;
-            /*font-weight:bold;*/
-            color: white;
-            cursor: pointer;
-        }
-
-            .key:hover {
-                background-color: LightBlue;
-            }
-
-            .key:active {
-                background-color: white;
-            }
-
-        .btn {
-            border: solid 1px black;
-            text-align: center;
-            font-weight: bold;
-            color: black;
-            cursor: pointer;
-            background-color: DimGray;
-            width: 33.3%;
-        }
-
-            .btn:hover {
-                background-color: DarkGray;
-            }
-
-            .btn:active {
-                background-color: LightGray;
-            }
-    </style>
+    
 
     <script type="text/javascript">
         ///////////////////////////////
@@ -177,7 +99,7 @@
             ///////////////////////////////
             var currentLine = 1;
             var pickListJsonData = '';
-            var shipmentAPI = "shop.kraemer.no/POC/GetSampleData.aspx";
+            var shipmentAPI = "http://shop.kraemer.no/POC/GetSampleData.aspx";
             var confirmedLines = new Object();
             var changedLines = new Object();
             console.log('About to call LoadDataAndPresentFirst');
@@ -227,15 +149,108 @@
 
             function LoadDataAndPresentFirst() {
                 console.log('Gunnar was here');
-                $.getJSON(shipmentAPI, function (result) {
-                	console.log('Gunnar called getJSON');
-                    console.log(JSON.stringify(result));
-                    pickListJsonData = result;
-                    PresentData();
-                });
-            }
+                $.ajax({
+                    url: shipmentAPI,
+                    type: "GET",
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result) {
+                        console.log('Gunnar FANT GULL');
+                        console.log(JSON.stringify(result));
+                        pickListJsonData = result;
+                        PresentData();
+                    },
+                    error: function (result) {
+                        //check the error here
+                    }
+                }
+            )
+            };
         });
     </script>
+
+
+    <script src="js\jquery.mobile-1.3.1.min.js"></script>
+    <link rel="stylesheet" href="css\jquery.mobile-1.3.1.min.css" />
+
+    <style>
+        @media all {
+            .my-breakpoint.ui-grid-c .ui-block-a {
+                width: 49.95%;
+            }
+
+            .my-breakpoint.ui-grid-c .ui-block-b,
+            .my-breakpoint.ui-grid-c .ui-block-c,
+            .my-breakpoint.ui-grid-c .ui-block-d {
+                width: 15%;
+            }
+        }
+
+
+
+        #numericInput {
+            position: relative;
+        }
+
+        #numBox {
+            margin: 10px;
+            width: 150px;
+            height: 40px;
+            text-align: center;
+            border: solid 1px black;
+            cursor: text;
+            overflow: hidden;
+            padding-top: 20px;
+            font-weight: bold;
+            font-size: larger;
+            border-radius: 20px;
+        }
+
+        #keypad {
+            width: 300px;
+            height: 180px;
+            border: solid 1px black;
+            /*display:none;*/
+            /*position:absolute;
+        top:22px;
+        left:1px;*/
+        }
+
+        .key {
+            border: solid 1px black;
+            background-color: #497bae;
+            text-align: center;
+            /*font-weight:bold;*/
+            color: white;
+            cursor: pointer;
+        }
+
+            .key:hover {
+                background-color: LightBlue;
+            }
+
+            .key:active {
+                background-color: white;
+            }
+
+        .btn {
+            border: solid 1px black;
+            text-align: center;
+            font-weight: bold;
+            color: black;
+            cursor: pointer;
+            background-color: DimGray;
+            width: 33.3%;
+        }
+
+            .btn:hover {
+                background-color: DarkGray;
+            }
+
+            .btn:active {
+                background-color: LightGray;
+            }
+    </style>
 </head>
 
 <body>
@@ -339,11 +354,6 @@
 
     </div>
     
-    <script type="text/javascript" src="cordova-2.5.0.js"></script>
-    <script type="text/javascript" src="js/index.js"></script>
-    <script type="text/javascript">
-        app.initialize();
-    </script>
 
 </body>
 </html>
